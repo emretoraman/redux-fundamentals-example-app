@@ -3,7 +3,7 @@ const initialState = {
     colors: []
 }
 
-export default filtersReducer = (state = initialState, action) => {
+const filtersReducer = (state = initialState, action) => {
     switch (action.type) {
         case 'filters/statusFilterChanged': {
             return {
@@ -11,8 +11,41 @@ export default filtersReducer = (state = initialState, action) => {
                 status: action.payload
             }
         }
+        case 'filters/colorFilterChanged': {
+            const { color, changeType } = action.payload
+            const { colors } = state
+
+            switch (changeType) {
+                case 'added': {
+                    if(colors.includes(color)) {
+                        return state
+                    }
+
+                    return {
+                        ...state,
+                        colors: [
+                            ...colors,
+                            color
+                        ]
+                    }
+                }
+                case 'removed': {
+                    return {
+                        ...state,
+                        colors: colors.filter(
+                            (existingColor) => existingColor !== color
+                        )
+                    }
+                }
+                default: {
+                    return state
+                }
+            }
+        }
         default: {
             return state
         }
     }
 }
+
+export default filtersReducer

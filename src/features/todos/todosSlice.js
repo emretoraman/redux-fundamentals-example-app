@@ -12,7 +12,7 @@ const nextTodoId = (todos) => {
     return maxId + 1
 }
 
-export default todosReducer = (state = initialState, action) => {
+const todosReducer = (state = initialState, action) => {
     switch (action.type) {
         case 'todos/todoAdded': {
             return [
@@ -41,3 +41,5 @@ export default todosReducer = (state = initialState, action) => {
         }
     }
 }
+
+export default todosReducer
