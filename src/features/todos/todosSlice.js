@@ -1,28 +1,11 @@
-const initialState = [
-    { id: 0, text: 'Learn React', completed: true },
-    { id: 1, text: 'Learn Redux', completed: false, color: 'purple' },
-    { id: 2, text: 'Build something fun!', completed: false, color: 'blue' }
-]
+import { client } from '../../api/client'
 
-const nextTodoId = (todos) => {
-    const maxId = todos.reduce(
-        (maxId, todo) => Math.max(todo.id, maxId),
-        -1
-    )
-    return maxId + 1
-}
+const initialState = []
 
 const todosReducer = (state = initialState, action) => {
     switch (action.type) {
         case 'todos/todoAdded': {
-            return [
-                ...state,
-                {
-                    id: nextTodoId(state),
-                    text: action.payload,
-                    completed: false
-                }
-            ]
+            return [...state, action.payload]
         }
         case 'todos/todoToggled': {
             return state.map(todo => {
@@ -39,7 +22,7 @@ const todosReducer = (state = initialState, action) => {
         case 'todos/colorSelected': {
             const { todoId, color } = action.payload
             return state.map(todo => {
-                if(todo.id !== todoId) {
+                if (todo.id !== todoId) {
                     return todo
                 }
 
@@ -63,6 +46,9 @@ const todosReducer = (state = initialState, action) => {
         case 'todos/completedCleared': {
             return state.filter(todo => !todo.completed)
         }
+        case 'todos/todosLoaded': {
+            return action.payload
+        }
         default: {
             return state
         }
@@ -70,3 +56,16 @@ const todosReducer = (state = initialState, action) => {
 }
 
 export default todosReducer
+
+export const fetchTodos = () => async (dispatch, getState) => {
+    const response = await client.get('/fakeApi/todos')
+    dispatch({ type: 'todos/todosLoaded', payload: response.todos })
+}
+
+export const saveNewTodo = (text) => async (dispatch, getState) => {
+    const response = await client.post(
+        '/fakeApi/todos',
+        { todo: { text } }
+    )
+    dispatch({ type: 'todos/todoAdded', payload: response.todo })
+}

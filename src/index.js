@@ -2,11 +2,14 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'
 
+import { fetchTodos } from './features/todos/todosSlice'
 import App from './App'
 import store from './store'
 
-import './api/server'
 import './index.css'
+import './api/server'
+
+store.dispatch(fetchTodos())
 
 ReactDOM.render(
   <React.StrictMode>
