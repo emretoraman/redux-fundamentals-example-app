@@ -1,3 +1,5 @@
+import { createSlice } from "@reduxjs/toolkit"
+
 export const StatusFilters = {
     All: 'all',
     Active: 'active',
@@ -9,54 +11,49 @@ const initialState = {
     colors: []
 }
 
-const filtersReducer = (state = initialState, action) => {
-    switch (action.type) {
-        case 'filters/statusFilterChanged': {
-            return {
-                ...state,
-                status: action.payload
-            }
-        }
-        case 'filters/colorFilterChanged': {
-            const { color, changeType } = action.payload
-            const { colors } = state
-
-            switch (changeType) {
-                case 'added': {
-                    if (colors.includes(color)) {
-                        return state
+const filtersSlice = createSlice({
+    name: 'filters',
+    initialState,
+    reducers: {
+        statusFilterChanged(state, action) {
+            const status = action.payload
+            state.status = status
+        },
+        colorFilterChanged: {
+            reducer(state, action) {
+                const { color, changeType } = action.payload
+                const { colors } = state
+    
+                switch (changeType) {
+                    case 'added': {
+                        if (!colors.includes(color)) {
+                            colors.push(color)
+                        }
+                        break
                     }
-
-                    return {
-                        ...state,
-                        colors: [
-                            ...colors,
-                            color
-                        ]
+                    case 'removed': {
+                        const colorIndex = colors.indexOf(color)
+                        if(colorIndex !== -1) {
+                            colors.splice(colorIndex, 1)
+                        }
+                        break
                     }
+                    default: break
                 }
-                case 'removed': {
-                    return {
-                        ...state,
-                        colors: colors.filter(
-                            (existingColor) => existingColor !== color
-                        )
-                    }
-                }
-                default: {
-                    return state
+            },
+            prepare(color, changeType) {
+                return {
+                    payload: { color, changeType }
                 }
             }
-        }
-        default: {
-            return state
         }
     }
-}
+})
 
+const filtersReducer = filtersSlice.reducer
 export default filtersReducer
 
-export const colorFilterChanged = (color, changeType) => ({
-    type: 'filters/colorFilterChanged',
-    payload: { color, changeType }
-})
+export const {
+    statusFilterChanged,
+    colorFilterChanged
+} = filtersSlice.actions
